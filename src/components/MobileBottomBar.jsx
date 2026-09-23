@@ -4,7 +4,7 @@ import { Map, Search, PlusCircle, MessageSquare, User } from 'lucide-react';
 export default function MobileBottomBar({ activeTab, setActiveTab, onOpenCreateModal, unreadDeals = 0 }) {
   const tabs = [
     { id: 'map', label: 'Mapa', icon: Map },
-    { id: 'explore', label: 'Explorar', icon: Search },
+    { id: 'feed', label: 'Explorar', icon: Search },
     { id: 'deals', label: 'Acuerdos', icon: MessageSquare, badge: unreadDeals },
     { id: 'profile', label: 'Perfil', icon: User },
   ];
