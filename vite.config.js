@@ -9,24 +9,43 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
+        id: 'cl.pololosafe.app',
         name: 'PololoSafe Chile - Red de Trabajo Libre',
         short_name: 'PololoSafe',
-        description: 'Plataforma comunitaria de trabajo libre y pololos directos en Chile',
+        description: 'Plataforma comunitaria de trabajo libre y pololos directos en Chile libre de intermediarios.',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
+        lang: 'es-CL',
+        dir: 'ltr',
+        categories: ['productivity', 'utilities', 'lifestyle'],
         icons: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: 'https://raw.githubusercontent.com/r0p0s/pololo-safe-app/main/public/favicon.svg',
+            sizes: '192x192 512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&q=80',
+            sizes: '800x600',
+            type: 'image/jpeg',
+            form_factor: 'wide',
+            label: 'Mapa interactivo de pololos en Chile'
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&q=80',
+            sizes: '400x800',
+            type: 'image/jpeg',
+            form_factor: 'narrow',
+            label: 'Detalles del acuerdo P2P'
           }
         ]
       }
