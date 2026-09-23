@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Smartphone, ChevronLeft, ShieldCheck } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { signInWithGoogle } from '../lib/firebase';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
@@ -58,7 +58,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      // Intentar autenticación real con Firebase Google Provider
+      // Disparar la ventana emergente real de inicio de sesión con Google de Firebase
       const user = await signInWithGoogle();
       onLoginSuccess({
         id: user.uid,
@@ -70,17 +70,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         reviewsCount: 0
       });
     } catch (err) {
-      console.warn("Firebase Auth real no configurado o Popup cerrado, activando autenticación estándar:", err);
-      // Fallback a cuenta demo real si las credenciales de Firebase aún no han sido vinculadas
-      onLoginSuccess({
-        id: 'google-user-id-123',
-        name: 'Usuario Google Autenticado',
-        email: 'usuario.demo@gmail.com',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-        isVerified: true,
-        rating: 5.0,
-        reviewsCount: 5
-      });
+      console.error("Error en Firebase Auth Google:", err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setErrorMsg('El inicio de sesión fue cancelado. Por favor, selecciona tu cuenta de Google.');
+      } else if (err.message && err.message.includes('Firebase auth not initialized')) {
+        setErrorMsg('Faltan las credenciales de Firebase en el archivo .env o firebase.js.');
+      } else {
+        setErrorMsg(`Error al conectar con Google: ${err.message || 'Inténtalo nuevamente'}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -108,14 +105,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
         <div className="p-6">
           {errorMsg && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200">
-              {errorMsg}
+            <div className="mb-4 p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 leading-relaxed">
+              ⚠️ {errorMsg}
             </div>
           )}
 
           {step === 'auth' ? (
             <div className="space-y-4">
-              {/* Boton Google Real */}
+              {/* Botón Google Real */}
               <button
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
@@ -139,7 +136,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>{isLoading ? 'Conectando con Google...' : 'Continuar con Google'}</span>
+                <span>{isLoading ? 'Abriendo Google...' : 'Continuar con Google'}</span>
               </button>
 
               <div className="relative flex items-center justify-center my-4">
