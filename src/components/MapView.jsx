@@ -1,70 +1,121 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldCheck, MapPin, Clock } from 'lucide-react';
+import 'leaflet/dist/leaflet.css';
+import { Locate } from 'lucide-react';
 
-// Custom Marker minimalista y elegante para 2026
-const customPinIcon = new L.DivIcon({
-  className: 'custom-div-icon',
-  html: `<div style="background-color:#0f172a; color:#34d399; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; border:2px solid #ffffff; box-shadow:0 10px 15px -3px rgba(0,0,0,0.25); font-size:16px;">📍</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -18]
-});
+const CATEGORIES = ['Todos', 'Maestro', 'Transporte', 'Jardinería', 'Mascotas', 'Clases', 'Tecnología', 'Limpieza'];
 
-export default function MapView({ pololos, onSelectPololo }) {
-  const santiagoCenter = [-33.4372, -70.6506];
+const getCategoryStyles = (category) => {
+  switch (category) {
+    case 'Maestro': return { emoji: '🔨', color: '#2563eb' }; // blue-600
+    case 'Transporte': return { emoji: '🚚', color: '#f97316' }; // orange-500
+    case 'Jardinería': return { emoji: '🌿', color: '#16a34a' }; // green-600
+    case 'Mascotas': return { emoji: '🐕', color: '#a855f7' }; // purple-500
+    case 'Clases': return { emoji: '📚', color: '#0891b2' }; // cyan-600
+    case 'Tecnología': return { emoji: '💻', color: '#4f46e5' }; // indigo-600
+    case 'Limpieza': return { emoji: '🧹', color: '#14b8a6' }; // teal-500
+    default: return { emoji: '📍', color: '#334155' }; // slate-700
+  }
+};
+
+const createIcon = (category) => {
+  const { emoji, color } = getCategoryStyles(category);
+  return L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background-color: ${color}; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${emoji}</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -18]
+  });
+};
+
+const LocationButton = () => {
+  const map = useMap();
+  const locateUser = () => {
+    map.locate().on("locationfound", function (e) {
+      map.flyTo(e.latlng, map.getZoom());
+    });
+  };
+  return (
+    <button
+      onClick={locateUser}
+      className="absolute bottom-6 right-6 z-[400] bg-white p-3 rounded-full shadow-lg text-slate-700 hover:text-emerald-500 transition-colors"
+    >
+      <Locate size={24} />
+    </button>
+  );
+};
+
+export default function MapView({ pololos = [], onSelectPololo }) {
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+
+  const filteredPololos = selectedCategory === 'Todos'
+    ? pololos
+    : pololos.filter(p => p.category === selectedCategory);
 
   return (
-    <div className="relative w-full h-[calc(100vh-65px)] bg-slate-900">
+    <div className="relative w-full h-[calc(100vh-56px-64px)]">
+      {/* Categories Overlay */}
+      <div className="absolute top-4 left-0 right-0 z-[400] overflow-x-auto px-4 pb-2 no-scrollbar flex space-x-2">
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              selectedCategory === cat
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'bg-white text-slate-700 border border-slate-200 shadow-sm'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       <MapContainer
-        center={santiagoCenter}
+        center={[-33.4372, -70.6506]}
         zoom={12}
-        scrollWheelZoom={true}
-        className="w-full h-full"
+        className="w-full h-full z-0"
+        zoomControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
-        {pololos.map((pololo) => (
-          <Marker
-            key={pololo.id}
-            position={[pololo.lat, pololo.lng]}
-            icon={customPinIcon}
-          >
-            <Popup>
-              <div className="p-3 max-w-xs font-sans">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">
+        {filteredPololos.map(pololo => {
+          if (!pololo.lat || !pololo.lng) return null;
+          return (
+            <Marker
+              key={pololo.id}
+              position={[pololo.lat, pololo.lng]}
+              icon={createIcon(pololo.category)}
+            >
+              <Popup className="pololo-popup" closeButton={false}>
+                <div className="p-1 min-w-[200px]">
+                  <span className="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase rounded mb-2">
                     {pololo.category}
                   </span>
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-                    ${pololo.payment.toLocaleString('es-CL')}
-                  </span>
+                  <h3 className="font-bold text-sm text-slate-900 mb-1 leading-tight">{pololo.title}</h3>
+                  <p className="text-emerald-600 font-black text-sm mb-2">
+                    ${pololo.price?.toLocaleString('es-CL')} CLP
+                  </p>
+                  <p className="text-xs text-slate-500 mb-3">{pololo.comuna}</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPololo(pololo);
+                    }}
+                    className="w-full bg-emerald-500 text-white font-medium py-2 rounded-lg text-sm"
+                  >
+                    Ver detalles
+                  </button>
                 </div>
-
-                <h3 className="font-bold text-slate-900 text-xs leading-snug mb-2">
-                  {pololo.title}
-                </h3>
-
-                <div className="flex items-center text-[11px] text-slate-500 mb-3 space-x-2">
-                  <span className="font-medium text-slate-700">{pololo.comuna}</span>
-                  <span>•</span>
-                  <span className="text-slate-500">{pololo.urgency}</span>
-                </div>
-
-                <button
-                  onClick={() => onSelectPololo(pololo)}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all text-center block"
-                >
-                  Ver Pololo & Contactar
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
+        <LocationButton />
       </MapContainer>
     </div>
   );

@@ -1,8 +1,8 @@
 {
   "id": "cl.pololosafe.app",
-  "name": "PololoSafe Chile - Red de Trabajo Libre",
+  "name": "PololoSafe Chile",
   "short_name": "PololoSafe",
-  "description": "Plataforma comunitaria de trabajo libre y pololos directos en Chile libre de intermediarios.",
+  "description": "Mercado P2P de trabajos rápidos en Chile, inspirado en SoSafe.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -22,18 +22,28 @@
   ],
   "screenshots": [
     {
-      "src": "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&q=80",
-      "sizes": "800x600",
+      "src": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1280&h=720&q=80",
+      "sizes": "1280x720",
       "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "Mapa interactivo de pololos en Chile"
+      "form_factor": "wide"
     },
     {
-      "src": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&q=80",
-      "sizes": "400x800",
+      "src": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=720&h=1280&q=80",
+      "sizes": "720x1280",
       "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Detalles del acuerdo P2P"
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Publicar Pololo",
+      "url": "/new",
+      "description": "Publicar un nuevo trabajo rápido"
+    },
+    {
+      "name": "Mis Acuerdos",
+      "url": "/deals",
+      "description": "Ver mis trabajos y postulaciones"
     }
   ]
 }
